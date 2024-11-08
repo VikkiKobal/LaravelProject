@@ -21,18 +21,22 @@
 <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-6">
     <thead class="bg-gray-800 text-white">
     <tr>
+        <th class="py-3 px-4 text-left">Code</th>
         <th class="py-3 px-4 text-left">Company Name</th>
-        <th class="py-3 px-4 text-left">Company Type</th>
-        <th class="py-3 px-4 text-left">Company Country</th>
+        <th class="py-3 px-4 text-left">Employees</th>
+        <th class="py-3 px-4 text-left">Industry</th>
+        <th class="py-3 px-4 text-left">Address</th>
         <th class="py-3 px-4 text-left">Actions</th>
     </tr>
     </thead>
     <tbody>
     @foreach ($companies as $company)
         <tr class="border-t">
+            <td class="py-3 px-4">{{ $company->code }}</td>
             <td class="py-3 px-4">{{ $company->name }}</td>
-            <td class="py-3 px-4">{{ $company->type }}</td>
-            <td class="py-3 px-4">{{ $company->country }}</td>
+            <td class="py-3 px-4">{{ $company->employees }}</td>
+            <td class="py-3 px-4">{{ $company->industry }}</td>
+            <td class="py-3 px-4">{{ $company->address }}</td>
             <td class="py-3 px-4">
                 <a href="{{ route('companies.edit', $company->id) }}" class="text-blue-500 hover:underline">Edit</a> |
                 <form action="{{ route('companies.destroy', $company->id) }}" method="POST" style="display:inline;">

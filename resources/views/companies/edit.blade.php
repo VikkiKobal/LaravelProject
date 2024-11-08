@@ -14,9 +14,10 @@
     @csrf
     @method('PUT')
 
+    <!-- Поле Code (read-only) -->
     <div class="mb-4">
-        <label for="code" class="block text-lg font-medium text-gray-700">Code</label>
-        <input type="text" id="code" name="code" value="{{ $company->code }}" class="w-full p-2 border border-gray-300 rounded" required>
+        <label for="code" class="block text-lg font-medium text-gray-700">Code (ID)</label>
+        <input type="text" id="code" name="code" value="{{ $company->code }}" class="w-full p-2 border border-gray-300 rounded bg-gray-100" readonly>
     </div>
 
     <div class="mb-4">

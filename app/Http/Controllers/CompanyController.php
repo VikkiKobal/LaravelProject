@@ -38,9 +38,10 @@ class CompanyController extends Controller
     // Показати інформацію про одну компанію
     public function show($id)
     {
-        $company = Company::findOrFail($id); // Знаходимо компанію по ID
-        return view('companies.show', compact('company')); // Повертаємо дані до представлення
+        $company = Company::find($id);
+        return view('companies.show', compact('company'));
     }
+
 
     // Показати форму для редагування компанії
     public function edit($id)
