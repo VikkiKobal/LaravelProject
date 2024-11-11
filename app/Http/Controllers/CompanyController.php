@@ -4,73 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller;
 
 class CompanyController extends Controller
 {
-    // Показати всі компанії
-    public function index()
+    use AuthorizesRequests;
+
+    public function __construct()
     {
-        $companies = Company::all(); // Отримуємо всі компанії з бази
-        return view('companies.index', compact('companies')); // Повертаємо дані до представлення
+        $this->middleware('auth'); // Переконайтесь, що користувач авторизований перед доступом до контролера
     }
 
-    // Показати форму для створення нової компанії
+    public function index()
+    {
+        $companies = Company::with('creator')->get();
+        return view('companies.index', compact('companies'));
+    }
+
+
+
     public function create()
     {
+        $this->authorize('create', Company::class); // Перевірка дозволу на створення компанії
         return view('companies.create');
     }
 
-    // Зберегти нову компанію
-    public function store(Request $request)
-    {
-        $request->validate([
-            'code' => 'required|unique:companies',
-            'name' => 'required',
-            'employees' => 'required|integer',
-            'industry' => 'required',
-            'address' => 'required',
-        ]);
-
-        Company::create($request->all()); // Створюємо нову компанію
-        return redirect()->route('companies.index'); // Перенаправляємо на список компаній
-    }
-
-    // Показати інформацію про одну компанію
     public function show($id)
     {
-        $company = Company::find($id);
+        $company = Company::findOrFail($id);
+        $this->authorize('view', $company); // Перевірка дозволу на перегляд компанії
+
         return view('companies.show', compact('company'));
     }
 
-
-    // Показати форму для редагування компанії
     public function edit($id)
     {
-        $company = Company::findOrFail($id); // Знаходимо компанію по ID
-        return view('companies.edit', compact('company')); // Повертаємо дані до представлення
+        $company = Company::findOrFail($id);
+        $this->authorize('update', $company); // Перевірка дозволу на редагування компанії
+
+        return view('companies.edit', compact('company'));
     }
 
-    // Оновити компанію
     public function update(Request $request, $id)
     {
+        $company = Company::findOrFail($id);
+        $this->authorize('update', $company); // Перевірка дозволу на оновлення компанії
+
         $request->validate([
-            'code' => 'required|unique:companies,code,' . $id,
-            'name' => 'required',
-            'employees' => 'required|integer',
-            'industry' => 'required',
-            'address' => 'required',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        $company = Company::findOrFail($id); // Знаходимо компанію по ID
-        $company->update($request->all()); // Оновлюємо компанію
-        return redirect()->route('companies.index'); // Перенаправляємо на список компаній
+        $company->update($request->all());
+        return redirect()->route('companies.index')->with('success', 'Company updated successfully.');
     }
 
-    // Видалити компанію
     public function destroy($id)
     {
-        $company = Company::findOrFail($id); // Знаходимо компанію по ID
-        $company->delete(); // Видаляємо компанію
-        return redirect()->route('companies.index'); // Перенаправляємо на список компаній
+        $company = Company::findOrFail($id);
+        $this->authorize('delete', $company); // Перевірка дозволу на видалення компанії
+
+        $company->delete();
+        return redirect()->route('companies.index')->with('success', 'Company deleted successfully.');
     }
 }

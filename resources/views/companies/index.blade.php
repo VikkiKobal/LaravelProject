@@ -26,6 +26,7 @@
         <th class="py-3 px-4 text-left">Працівники</th>
         <th class="py-3 px-4 text-left">Галузь</th>
         <th class="py-3 px-4 text-left">Адреса</th>
+        <th class="py-3 px-4 text-left">Автор</th> <!-- Додано стовпець для автора -->
         <th class="py-3 px-4 text-left">Дії</th>
     </tr>
     </thead>
@@ -37,17 +38,26 @@
             <td class="py-3 px-4">{{ $company->employees }}</td>
             <td class="py-3 px-4">{{ $company->industry }}</td>
             <td class="py-3 px-4">{{ $company->address }}</td>
+            <td class="py-3 px-4">{{ $company->creator->name }}</td> <!-- Вивести ім'я користувача -->
             <td class="py-3 px-4">
-                <a href="{{ route('companies.edit', $company->id) }}" class="text-blue-500 hover:underline">Редагувати</a> |
-                <form action="{{ route('companies.destroy', $company->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-red-500 hover:underline">Видалити</button>
-                </form>
+                @if ($company->creator_user_id == auth()->id() || auth()->user()->role == 'Editor')
+                    <a href="{{ route('companies.edit', $company->id) }}" class="text-blue-500 hover:underline">Редагувати</a> |
+                    <form action="{{ route('companies.destroy', $company->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-500 hover:underline">Видалити</button>
+                    </form>
+                @else
+                    Немає доступу
+                @endif
             </td>
         </tr>
     @endforeach
     </tbody>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit">Вийти</button>
+    </form>
 </table>
 
 </body>
