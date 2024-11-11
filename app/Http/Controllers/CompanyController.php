@@ -23,6 +23,30 @@ class CompanyController extends Controller
     }
 
 
+    public function store(Request $request)
+    {
+        // Валідація даних
+        $request->validate([
+            'code' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'employees' => 'required|integer',
+            'industry' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+        ]);
+
+        // Створення нової компанії
+        $company = new Company();
+        $company->code = $request->code;
+        $company->name = $request->name;
+        $company->employees = $request->employees;
+        $company->industry = $request->industry;
+        $company->address = $request->address;
+        $company->creator_user_id = auth()->id();  // Зберігаємо ID користувача, який створює компанію
+        $company->save();
+
+        // Перенаправлення з повідомленням про успішне створення
+        return redirect()->route('companies.index')->with('success', 'Компанія успішно створена!');
+    }
 
     public function create()
     {
@@ -41,10 +65,15 @@ class CompanyController extends Controller
     public function edit($id)
     {
         $company = Company::findOrFail($id);
-        $this->authorize('update', $company); // Перевірка дозволу на редагування компанії
+
+        // Перевірка, чи є користувач автором або редактором
+        if ($company->creator_user_id != auth()->id() && auth()->user()->role != 'Editor') {
+            return redirect()->route('companies.index')->with('error', 'У вас немає прав для редагування цієї компанії');
+        }
 
         return view('companies.edit', compact('company'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -63,9 +92,14 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
-        $this->authorize('delete', $company); // Перевірка дозволу на видалення компанії
+
+        // Перевірка, чи є користувач автором
+        if ($company->creator_user_id != auth()->id()) {
+            return redirect()->route('companies.index')->with('error', 'У вас немає прав для видалення цієї компанії');
+        }
 
         $company->delete();
-        return redirect()->route('companies.index')->with('success', 'Company deleted successfully.');
+
+        return redirect()->route('companies.index')->with('success', 'Компанія успішно видалена');
     }
 }
