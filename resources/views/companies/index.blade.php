@@ -38,23 +38,22 @@
             <td class="py-3 px-4">{{ $company->employees }}</td>
             <td class="py-3 px-4">{{ $company->industry }}</td>
             <td class="py-3 px-4">{{ $company->address }}</td>
-            <td class="py-3 px-4">{{ $company->creator->name }}</td> <!-- Вивести ім'я користувача --><td class="py-3 px-4">
-                @if ($company->creator_user_id == auth()->id() || auth()->user()->role == 'Editor')
+            <td class="py-3 px-4">{{ $company->creator->name }}</td>
+            <td class="py-3 px-4">
+                @if (auth()->user()->role == 'SuperAdmin' || auth()->user()->role == 'Editor' || $company->creator_user_id == auth()->id())
                     <a href="{{ route('companies.edit', $company->id) }}" class="text-blue-500 hover:underline">Редагувати</a> |
 
-                    @if ($company->creator_user_id == auth()->id()) <!-- Тільки автор може видаляти -->
-                    <form action="{{ route('companies.destroy', $company->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:underline">Видалити</button>
-                    </form>
+                    @if (auth()->user()->role == 'SuperAdmin' || $company->creator_user_id == auth()->id())
+                        <form action="{{ route('companies.destroy', $company->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:underline">Видалити</button>
+                        </form>
                     @endif
                 @else
                     Немає доступу
                 @endif
             </td>
-
-
 
         </tr>
     @endforeach

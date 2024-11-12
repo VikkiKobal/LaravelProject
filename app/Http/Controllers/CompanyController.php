@@ -65,14 +65,11 @@ class CompanyController extends Controller
     public function edit($id)
     {
         $company = Company::findOrFail($id);
-
-        // Перевірка, чи є користувач автором або редактором
-        if ($company->creator_user_id != auth()->id() && auth()->user()->role != 'Editor') {
-            return redirect()->route('companies.index')->with('error', 'У вас немає прав для редагування цієї компанії');
-        }
+        $this->authorize('update', $company);
 
         return view('companies.edit', compact('company'));
     }
+
 
 
     public function update(Request $request, $id)
@@ -92,14 +89,11 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
-
-        // Перевірка, чи є користувач автором
-        if ($company->creator_user_id != auth()->id()) {
-            return redirect()->route('companies.index')->with('error', 'У вас немає прав для видалення цієї компанії');
-        }
+        $this->authorize('delete', $company);
 
         $company->delete();
 
         return redirect()->route('companies.index')->with('success', 'Компанія успішно видалена');
     }
+
 }
